@@ -59,4 +59,7 @@ func main() {
 	}
 
 	fmt.Println(string(content))
+
+	err = lite.PubsubPublish(ctx, "test", []byte("test data"))
+	fmt.Println(err)
 }

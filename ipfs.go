@@ -10,7 +10,7 @@ import (
 
 	"github.com/ipfs/go-bitswap"
 	"github.com/ipfs/go-bitswap/network"
-	blockservice "github.com/ipfs/go-blockservice"
+	"github.com/ipfs/go-blockservice"
 	"github.com/ipfs/go-cid"
 	"github.com/ipfs/go-datastore"
 	blockstore "github.com/ipfs/go-ipfs-blockstore"
@@ -28,7 +28,8 @@ import (
 	host "github.com/libp2p/go-libp2p-host"
 	dht "github.com/libp2p/go-libp2p-kad-dht"
 	peerstore "github.com/libp2p/go-libp2p-peerstore"
-	multihash "github.com/multiformats/go-multihash"
+	pubsub "github.com/libp2p/go-libp2p-pubsub"
+	"github.com/multiformats/go-multihash"
 )
 
 func init() {
@@ -56,6 +57,7 @@ type Peer struct {
 	bstore blockstore.Blockstore
 	host   host.Host
 	dht    *dht.IpfsDHT
+	pubsub *pubsub.PubSub
 }
 
 // New creates an IPFS-Lite Peer. It uses the given datastore, libp2p Host and
@@ -90,6 +92,11 @@ func New(
 		bserv = blockservice.New(cachedbs, bswap)
 	}
 
+	ps, err := pubsub.NewFloodSub(ctx, host)
+	if nil != err {
+		return nil, err
+	}
+
 	dags := merkledag.NewDAGService(bserv)
 	return &Peer{
 		ctx:        ctx,
@@ -98,6 +105,7 @@ func New(
 		bstore:     cachedbs,
 		host:       host,
 		dht:        dht,
+		pubsub:     ps,
 	}, nil
 }
 
@@ -232,4 +240,8 @@ func (p *Peer) BlockStore() blockstore.Blockstore {
 // a shorthand for .Blockstore().Has().
 func (p *Peer) HasBlock(c cid.Cid) (bool, error) {
 	return p.BlockStore().Has(c)
+}
+
+func (p *Peer) PubsubPublish(ctx context.Context, topic string, data []byte) error {
+	return p.pubsub.Publish(topic, data)
 }

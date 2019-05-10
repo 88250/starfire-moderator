@@ -25,6 +25,7 @@ require (
 	github.com/libp2p/go-libp2p-peer v0.1.1
 	github.com/libp2p/go-libp2p-peerstore v0.0.5
 	github.com/libp2p/go-libp2p-pnet v0.0.1
+	github.com/libp2p/go-libp2p-pubsub v0.0.2
 	github.com/multiformats/go-multiaddr v0.0.2
 	github.com/multiformats/go-multihash v0.0.5
 )

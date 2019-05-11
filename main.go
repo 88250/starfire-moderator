@@ -1,65 +1,29 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"io/ioutil"
+	"math/rand"
+	"time"
 
-	"github.com/ipfs/go-cid"
-	"github.com/ipfs/go-log"
-	"github.com/libp2p/go-libp2p-crypto"
-	"github.com/multiformats/go-multiaddr"
+	api "github.com/ipfs/go-ipfs-api"
 )
 
+func init() {
+	rand.Seed(time.Now().UTC().UnixNano())
+}
+
 func main() {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	sh := api.NewShell("localhost:5001")
+	data := randString() + "\n"
+	sh.PubSubPublish("test", data)
+}
 
-	log.SetLogLevel("*", "warn")
+func randString() string {
+	alpha := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+	l := rand.Intn(10) + 2
 
-	ds, err := BadgerDatastore("ds")
-	if err != nil {
-		panic(err)
+	var s string
+	for i := 0; i < l; i++ {
+		s += string([]byte{alpha[rand.Intn(len(alpha))]})
 	}
-	priv, _, err := crypto.GenerateKeyPair(crypto.RSA, 2048)
-	if err != nil {
-		panic(err)
-	}
-
-	listen, _ := multiaddr.NewMultiaddr("/ip4/0.0.0.0/tcp/4005")
-
-	h, dht, err := SetupLibp2p(
-		ctx,
-		priv,
-		nil,
-		[]multiaddr.Multiaddr{listen},
-	)
-
-	if err != nil {
-		panic(err)
-	}
-
-	lite, err := New(ctx, ds, h, dht, nil)
-	if err != nil {
-		panic(err)
-	}
-
-	lite.Bootstrap(DefaultBootstrapPeers())
-
-	c, _ := cid.Decode("QmQKMPwjMBHqV5G3rus4caXSteGgefFsihCwXNAB7fUCQo")
-	rsc, err := lite.GetFile(ctx, c)
-
-	if err != nil {
-		panic(err)
-	}
-	defer rsc.Close()
-	content, err := ioutil.ReadAll(rsc)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println(string(content))
-
-	err = lite.PubsubPublish(ctx, "test", []byte("test data"))
-	fmt.Println(err)
+	return s
 }

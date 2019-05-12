@@ -55,6 +55,7 @@ func main() {
 	moderateBlacklistCmdData := string(moderateBlacklistCmdBytes)
 	sh.PubSubPublish(topic, moderateBlacklistCmdData)
 
+	fmt.Println("home publishing")
 	start := time.Now()
 	err = sh.Publish("", homeId)
 	if nil != err {

@@ -65,26 +65,27 @@ func main() {
 	}
 	identity := config["Identity"].(map[string]interface{})
 	privKey := identity["PrivKey"].(string)
-	data, err = base64.StdEncoding.DecodeString(privKey)
+	privKeyBytes, err := base64.StdEncoding.DecodeString(privKey)
 	if nil != err {
 		panic(err)
 	}
-	key, err := crypto.UnmarshalPrivateKey(data)
+	key, err := crypto.UnmarshalPrivateKey(privKeyBytes)
 	if nil != err {
 		panic(err)
 	}
+
 
 	moderateBlacklistCmd := map[string]interface{}{
 		"type": typeBlacklist,
 		"data": blacklistId,
 	}
+	signBytes, err := key.Sign([]byte(blacklistId))
+	sign := hex.EncodeToString(signBytes)
+	moderateBlacklistCmd["sign"] = sign
 	moderateBlacklistCmdBytes, err := json.Marshal(moderateBlacklistCmd)
 	if nil != err {
 		panic(err)
 	}
-	signBytes, err := key.Sign(moderateBlacklistCmdBytes)
-	sign := hex.EncodeToString(signBytes)
-	moderateBlacklistCmd["sign"] = sign
 	moderateBlacklistCmdData := string(moderateBlacklistCmdBytes)
 	sh.PubSubPublish(topic, moderateBlacklistCmdData)
 

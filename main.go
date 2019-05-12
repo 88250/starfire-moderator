@@ -11,10 +11,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/mitchellh/go-homedir"
-
 	api "github.com/ipfs/go-ipfs-api"
 	crypto "github.com/libp2p/go-libp2p-crypto"
+	"github.com/mitchellh/go-homedir"
 )
 
 func init() {

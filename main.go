@@ -69,6 +69,6 @@ func main() {
 	if nil != err {
 		panic(err)
 	}
-	fmt.Println("home resolved [" + homeResolved + "] by  ")
+	fmt.Println("home resolved [" + homeResolved + "]")
 }
 

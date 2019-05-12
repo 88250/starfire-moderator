@@ -5,15 +5,16 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/mitchellh/go-homedir"
 	"io/ioutil"
 	"math/rand"
 	"os"
 	"path/filepath"
 	"time"
 
+	"github.com/mitchellh/go-homedir"
+
 	api "github.com/ipfs/go-ipfs-api"
-crypto "github.com/libp2p/go-libp2p-crypto"
+	crypto "github.com/libp2p/go-libp2p-crypto"
 )
 
 func init() {
@@ -21,7 +22,7 @@ func init() {
 }
 
 const (
-	topic = "starfire"
+	topic         = "starfire"
 	typeBlacklist = "blacklist"
 )
 
@@ -60,7 +61,7 @@ func main() {
 		panic(err)
 	}
 	config := map[string]interface{}{}
-	if err := json.Unmarshal(data, &config);nil!=err {
+	if err := json.Unmarshal(data, &config); nil != err {
 		panic(err)
 	}
 	identity := config["Identity"].(map[string]interface{})
@@ -73,13 +74,14 @@ func main() {
 	if nil != err {
 		panic(err)
 	}
-
-
 	moderateBlacklistCmd := map[string]interface{}{
 		"type": typeBlacklist,
 		"data": blacklistId,
 	}
 	signBytes, err := key.Sign([]byte(blacklistId))
+	if nil != err {
+		panic(err)
+	}
 	sign := hex.EncodeToString(signBytes)
 	moderateBlacklistCmd["sign"] = sign
 	moderateBlacklistCmdBytes, err := json.Marshal(moderateBlacklistCmd)
@@ -87,12 +89,13 @@ func main() {
 		panic(err)
 	}
 	moderateBlacklistCmdData := string(moderateBlacklistCmdBytes)
-	sh.PubSubPublish(topic, moderateBlacklistCmdData)
+	if err = sh.PubSubPublish(topic, moderateBlacklistCmdData); nil != err {
+		panic(err)
+	}
 
 	fmt.Println("home publishing")
 	start := time.Now()
-	err = sh.Publish("", homeId)
-	if nil != err {
+	if err = sh.Publish("", homeId); nil != err {
 		panic(err)
 	}
 	end := time.Now()
@@ -105,4 +108,3 @@ func main() {
 	}
 	fmt.Println("home resolved [" + homeResolved + "]")
 }
-

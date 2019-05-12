@@ -55,9 +55,19 @@ func main() {
 	moderateBlacklistCmdData := string(moderateBlacklistCmdBytes)
 	sh.PubSubPublish(topic, moderateBlacklistCmdData)
 
-	err = sh.Publish(id.ID, homeId)
+	start := time.Now()
+	err = sh.Publish("", homeId)
 	if nil != err {
 		panic(err)
 	}
+	end := time.Now()
+	publishElapsed := end.Sub(start).Seconds()
+	fmt.Printf("home published [ipns/%s] in [%.2f]\n", id.ID, publishElapsed)
+
+	homeResolved, err := sh.Resolve(id.ID)
+	if nil != err {
+		panic(err)
+	}
+	fmt.Println("home resolved [" + homeResolved + "] by  ")
 }
 

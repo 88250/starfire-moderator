@@ -14,6 +14,11 @@ func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
 }
 
+const (
+	topic = "starfire"
+	typeBlacklist = "blacklist"
+)
+
 func main() {
 	sh := api.NewShell("localhost:5002")
 
@@ -21,23 +26,26 @@ func main() {
 	if nil != err {
 		panic(err)
 	}
-	fmt.Println("starfire moderator id [" + id.ID + "]")
+	fmt.Println("moderator id [" + id.ID + "]")
 
-	sh.PubSubPublish("starfire", randString()+"\n")
-
-	blacklist, err := os.Open("blacklist")
+	homeId, err := sh.AddDir("home")
 	if nil != err {
 		panic(err)
 	}
+	fmt.Println("home [" + homeId + "]")
 
+	blacklist, err := os.Open("home/blacklist")
+	if nil != err {
+		panic(err)
+	}
 	blacklistId, err := sh.Add(blacklist)
 	if nil != err {
 		panic(err)
 	}
-	fmt.Println("blacklist added [" + blacklistId + "]")
+	fmt.Println("blacklist [" + blacklistId + "]")
 
 	moderateBlacklistCmd := map[string]interface{}{
-		"type": "blacklist",
+		"type": typeBlacklist,
 		"data": blacklistId,
 	}
 	moderateBlacklistCmdBytes, err := json.Marshal(moderateBlacklistCmd)
@@ -45,16 +53,11 @@ func main() {
 		panic(err)
 	}
 	moderateBlacklistCmdData := string(moderateBlacklistCmdBytes)
-	sh.PubSubPublish("starfire", moderateBlacklistCmdData)
-}
+	sh.PubSubPublish(topic, moderateBlacklistCmdData)
 
-func randString() string {
-	alpha := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
-	l := rand.Intn(10) + 2
-
-	var s string
-	for i := 0; i < l; i++ {
-		s += string([]byte{alpha[rand.Intn(len(alpha))]})
+	err = sh.Publish(id.ID, homeId)
+	if nil != err {
+		panic(err)
 	}
-	return s
 }
+

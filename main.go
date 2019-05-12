@@ -16,6 +16,13 @@ func init() {
 
 func main() {
 	sh := api.NewShell("localhost:5002")
+
+	id, err := sh.ID()
+	if nil != err {
+		panic(err)
+	}
+	fmt.Println("starfire moderator id [" + id.ID + "]")
+
 	sh.PubSubPublish("starfire", randString()+"\n")
 
 	blacklist, err := os.Open("blacklist")

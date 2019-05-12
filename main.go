@@ -1,7 +1,10 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"math/rand"
+	"os"
 	"time"
 
 	api "github.com/ipfs/go-ipfs-api"
@@ -12,9 +15,30 @@ func init() {
 }
 
 func main() {
-	sh := api.NewShell("localhost:5001")
-	data := randString() + "\n"
-	sh.PubSubPublish("test", data)
+	sh := api.NewShell("localhost:5002")
+	sh.PubSubPublish("starfire", randString()+"\n")
+
+	blacklist, err := os.Open("blacklist")
+	if nil != err {
+		panic(err)
+	}
+
+	blacklistId, err := sh.Add(blacklist)
+	if nil != err {
+		panic(err)
+	}
+	fmt.Println("blacklist added [" + blacklistId + "]")
+
+	moderateBlacklistCmd := map[string]interface{}{
+		"type": "blacklist",
+		"data": blacklistId,
+	}
+	moderateBlacklistCmdBytes, err := json.Marshal(moderateBlacklistCmd)
+	if nil != err {
+		panic(err)
+	}
+	moderateBlacklistCmdData := string(moderateBlacklistCmdBytes)
+	sh.PubSubPublish("starfire", moderateBlacklistCmdData)
 }
 
 func randString() string {

@@ -13,7 +13,6 @@ import (
 
 	api "github.com/ipfs/go-ipfs-api"
 	crypto "github.com/libp2p/go-libp2p-crypto"
-	"github.com/mitchellh/go-homedir"
 )
 
 func init() {
@@ -50,11 +49,7 @@ func main() {
 	}
 	fmt.Println("blacklist [" + blacklistId + "]")
 
-	userHome, err := homedir.Dir()
-	if nil != err {
-		panic(err)
-	}
-	configPath := filepath.Join(userHome, ".ipfs-starfire-moderator", "config")
+	configPath := filepath.Join("D:\\", ".ipfs-starfire-moderator", "config")
 	data, err := ioutil.ReadFile(configPath)
 	if nil != err {
 		panic(err)

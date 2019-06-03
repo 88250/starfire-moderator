@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
-	"path/filepath"
 	"time"
 
 	api "github.com/ipfs/go-ipfs-api"
@@ -49,8 +48,7 @@ func main() {
 	}
 	fmt.Println("blacklist [" + blacklistId + "]")
 
-	configPath := filepath.Join("D:\\", ".ipfs-starfire-moderator", "config")
-	data, err := ioutil.ReadFile(configPath)
+	data, err := ioutil.ReadFile("D:\\.ipfs-starfire-moderator\\config")
 	if nil != err {
 		panic(err)
 	}

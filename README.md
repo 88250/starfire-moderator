@@ -1,3 +1,4 @@
 # starfire-moderator
 
-星火管理私有仓库。
+1. PubSub 发布黑名单
+2. 管理节点 IPNS 发布

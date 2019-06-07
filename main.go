@@ -92,7 +92,7 @@ func main() {
 	}
 	end := time.Now()
 	publishElapsed := end.Sub(start).Seconds()
-	fmt.Printf("home published [ipns/%s] in [%.2f]\n", id.ID, publishElapsed)
+	fmt.Printf("home published [ipns/%s] in [%.2f]s\n", id.ID, publishElapsed)
 
 	homeResolved, err := sh.Resolve(id.ID)
 	if nil != err {
